@@ -19,22 +19,22 @@ public class GbaseConnect {
 	
 	public static String pwd="model";
 	
-	public static String insertSql = "select TABLE_NAME from information_schema.tables "
-			+ "where TABLE_SCHEMA='modeldb2' AND TABLE_TYPE='BASE TABLE';";
+	public static String insertSql = "select TABLE_NAME,TABLE_COMMENT  from information_schema.tables "
+			+ "where TABLE_SCHEMA='modeldb3' AND TABLE_TYPE='BASE TABLE';";
 	
 	public static String sql ="insert into bdam_storage_data_info VALUES"
-			+ "(?,?,'测试表','modeldb2','GBMN','30','1000000','500','0','10','10000','',"
-			+ "'2018-05-15','2017-03-01','2017-03-04')";
+			+ "(?,?,?,'modeldb3','GBMN','30','1000000','500','1','10','10000','',"
+			+ "'2018-05-29','2017-03-01','2017-03-04')";
 	
 	public static Connection connection;
 	
 	
-	public static Map<String, String> produce(String tableName){
+	public static Map<String, String> produce(String tableName,String comment){
 		Map<String, String> map = new HashMap<>();
 		map.put("code", tableName);
 		map.put("oid", UUID.randomUUID().toString());
-		map.put("tableName", "" );
-		map.put("db", "modeldb");
+		map.put("tableName", comment );
+		map.put("db", "modeldb3");
 		map.put("cluster", "GBMN");
 		map.put("cycle", "10");
 		map.put("total", "1000000");
@@ -60,15 +60,17 @@ public class GbaseConnect {
 			
 			while (resultSet.next()) {
 				String tableName = resultSet.getString(1);
-				Map<String, String> map = produce(tableName);
+				String comment = resultSet.getString(2);
+				Map<String, String> map = produce(tableName,comment);
 				pStatement.setString(1, map.get("oid"));
 				pStatement.setString(2, map.get("code"));
+				pStatement.setString(3, map.get("tableName"));
 				pStatement.executeUpdate();
 			}
 			
 			
 			
-			
+			  
 			
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
