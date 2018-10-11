@@ -11,7 +11,7 @@ import java.util.Scanner;
 
 public class NioClient {
 	
-	Selector selector;
+	Selector selector; 
 	
 	ByteBuffer readBuffer = ByteBuffer.allocate(2048);
 	ByteBuffer writeBuffer = ByteBuffer.allocate(2048);
@@ -56,6 +56,7 @@ public class NioClient {
 					writeBuffer.put("hello".getBytes());
 					writeBuffer.flip();
 					socketChannel.write(writeBuffer);
+					
 					System.out.println("开始发送握手信息");
 				}else if(key.isReadable()) {
 					readBuffer.clear();
