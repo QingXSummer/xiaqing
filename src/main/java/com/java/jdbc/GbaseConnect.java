@@ -5,26 +5,35 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 import java.util.UUID;
 
 public class GbaseConnect {
 	
+	public static final  String db="provag";
+	public static final  String CLUSTER="GBMN";
+	
+	public static Random random = new Random();
+	
+	public static DecimalFormat df = new DecimalFormat("0.00");
+	
 	public static String DRIVER ="com.gbase.jdbc.Driver";
 	
-	public static String URL ="jdbc:gbase://192.168.0.17:5258/dataman?useUnicode=true&characterEncoding=UTF8";
+	public static String URL ="jdbc:gbase://172.16.15.4:5258/dataman?useUnicode=true&characterEncoding=UTF8";
 	
-	public static String userName="model";
+	public static String userName="gbase";
 	
-	public static String pwd="model";
+	public static String pwd="gbase";
 	
 	public static String insertSql = "select TABLE_NAME,TABLE_COMMENT  from information_schema.tables "
-			+ "where TABLE_SCHEMA='modeldb3' AND TABLE_TYPE='BASE TABLE';";
+			+ "where TABLE_SCHEMA='"+db+"' AND TABLE_TYPE='BASE TABLE';";
 	
 	public static String sql ="insert into bdam_storage_data_info VALUES"
-			+ "(?,?,?,'modeldb3','GBMN','30','1000000','500','1','10','10000','',"
-			+ "'2018-05-29','2017-03-01','2017-03-04')";
+			+ "(?,?,?,'"+db+"','"+CLUSTER+"','30',?,?,'','','','',"
+			+ "'2018-05-30','2017-03-01','2017-03-04')";
 	
 	public static Connection connection;
 	
@@ -34,15 +43,6 @@ public class GbaseConnect {
 		map.put("code", tableName);
 		map.put("oid", UUID.randomUUID().toString());
 		map.put("tableName", comment );
-		map.put("db", "modeldb3");
-		map.put("cluster", "GBMN");
-		map.put("cycle", "10");
-		map.put("total", "1000000");
-		map.put("size", "1000");
-		map.put("over", "0");
-		map.put("overS", "10");
-		map.put("overT", "10000");
-		map.put("asses_time", "10000");
 		return map;
 		
 	}
@@ -65,6 +65,8 @@ public class GbaseConnect {
 				pStatement.setString(1, map.get("oid"));
 				pStatement.setString(2, map.get("code"));
 				pStatement.setString(3, map.get("tableName"));
+				pStatement.setString(4, Math.abs(random.nextInt())+"");
+				pStatement.setString(5, df.format(random.nextFloat()));
 				pStatement.executeUpdate();
 			}
 			

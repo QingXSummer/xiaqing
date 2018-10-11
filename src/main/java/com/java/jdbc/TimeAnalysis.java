@@ -158,14 +158,9 @@ public class TimeAnalysis {
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
-		
+		}		
 	}
-	
-	
 }
-
-
 
 class TimeAnalysisObj {
 	private String oid;

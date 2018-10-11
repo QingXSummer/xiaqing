@@ -8,6 +8,7 @@ import java.io.Reader;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.nio.channels.Selector;
 import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -24,6 +25,9 @@ public class SocketTest {
 		
 //		System.out.println(System.getProperty("user.dir"));
 //		System.out.println(File.separator);
+		
+		
+		Selector.open();
 		
 	}
 	
