@@ -9,18 +9,13 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import java.util.Scanner;
-import java.util.Set;
 
 public class NioServer {
-	
-	Selector selector;
-	
-	ByteBuffer readBuffer  = ByteBuffer.allocate(2048);
-	ByteBuffer writeBuffer  = ByteBuffer.allocate(2048);
-	
-	Scanner scanner = new Scanner(System.in);
-	
-	public NioServer(int port) {
+	private Selector selector;
+	private ByteBuffer readBuffer  = ByteBuffer.allocate(2048);
+	private ByteBuffer writeBuffer  = ByteBuffer.allocate(2048);
+	private Scanner scanner = new Scanner(System.in);
+	private NioServer(int port) {
 		this.initServer(port);
 	}
 	
@@ -28,7 +23,7 @@ public class NioServer {
 	 * 初始化服务器端监听
 	 *@author QingX
 	 *Date 2018年10月6日 上午9:44:32
-	 * @param port
+	 *
 	 */
 	private void initServer(int port) {
 		try {

@@ -18,9 +18,10 @@ public class SocketTest {
 	
 	
 	public static void main(String[] args) throws UnknownHostException, IOException {
-		
-		ExecutorService executor = Executors.newFixedThreadPool(3);
-		executor.execute(new Server());
+
+		System.out.println();
+//		ExecutorService executor = Executors.newFixedThreadPool(3);
+//		executor.execute(new Server());
 //		executor.execute(new Client());
 		
 //		System.out.println(System.getProperty("user.dir"));
