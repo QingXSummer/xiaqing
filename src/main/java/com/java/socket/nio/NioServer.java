@@ -10,6 +10,9 @@ import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import java.util.Scanner;
 
+/**
+ * 这是一个服务类
+ */
 public class NioServer {
 	private Selector selector;
 	private ByteBuffer readBuffer  = ByteBuffer.allocate(2048);
