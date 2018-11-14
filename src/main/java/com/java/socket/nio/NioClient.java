@@ -1,5 +1,7 @@
 package com.java.socket.nio;
 
+import org.apache.log4j.Logger;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -10,7 +12,9 @@ import java.util.Iterator;
 import java.util.Scanner;
 
 public class NioClient {
-	
+
+	Logger logger = Logger.getLogger(NioClient.class);
+
 	Selector selector; 
 	
 	ByteBuffer readBuffer = ByteBuffer.allocate(2048);
@@ -39,6 +43,7 @@ public class NioClient {
 		while(true) {
 			selector.select();
 			Iterator<SelectionKey> keys = selector.selectedKeys().iterator();
+			logger.debug("keys-size:"+selector.selectedKeys().size());
 			while (keys.hasNext()) {
 				SelectionKey key = (SelectionKey) keys.next();
 				keys.remove();
@@ -46,19 +51,15 @@ public class NioClient {
 					SocketChannel socketChannel = (SocketChannel) key.channel();
 					
                     // 如果正在连接，则完成连接  
-                    if(socketChannel.isConnectionPending()){                        
-                    	socketChannel.finishConnect();                            
-                    }  
+                    if(socketChannel.isConnectionPending()){
+                    	socketChannel.finishConnect();
+                    }
+                    int inter = SelectionKey.OP_READ | SelectionKey.OP_WRITE;
+					socketChannel.register(selector, inter);
 					
-					socketChannel.configureBlocking(false);
-					socketChannel.register(selector, SelectionKey.OP_READ);
-					writeBuffer.clear();
-					writeBuffer.put("hello".getBytes());
-					writeBuffer.flip();
-					socketChannel.write(writeBuffer);
-					
-					System.out.println("开始发送握手信息");
-				}else if(key.isReadable()) {
+					System.out.println("成功连接服务器");
+				}
+				if(key.isReadable()) {
 					readBuffer.clear();
 					writeBuffer.clear();
 					SocketChannel socketChannel = (SocketChannel) key.channel();
@@ -67,11 +68,15 @@ public class NioClient {
 					byte[] bytes = new byte[readBuffer.limit()];
 					readBuffer.get(bytes);
 					System.out.println("服务端："+new String(bytes));
-					System.out.println("请输入回应");
-					String result = scanner.next();
-					writeBuffer.put(result.getBytes());
-					writeBuffer.flip();
-					socketChannel.write(writeBuffer);
+				}
+				if(key.isWritable()){
+					SocketChannel socketChannel = (SocketChannel) key.channel();
+					String msg = scanner.nextLine();
+                    writeBuffer.clear();
+                    writeBuffer.put(msg.getBytes());
+                    writeBuffer.flip();
+                    socketChannel.write(writeBuffer);
+                    logger.debug("客户端发送信息");
 				}
 			}
 		}

@@ -1,5 +1,7 @@
 package com.java.socket.nio;
 
+import org.apache.log4j.Logger;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -14,6 +16,9 @@ import java.util.Scanner;
  * 这是一个服务类
  */
 public class NioServer {
+
+	Logger logger = Logger.getLogger(NioServer.class);
+
 	private Selector selector;
 	private ByteBuffer readBuffer  = ByteBuffer.allocate(2048);
 	private ByteBuffer writeBuffer  = ByteBuffer.allocate(2048);
@@ -50,6 +55,7 @@ public class NioServer {
 		while(true) {
 			selector.select();
 			Iterator<SelectionKey> iterator = selector.selectedKeys().iterator();
+			logger.debug("keys-size:"+selector.selectedKeys().size());
 			while(iterator.hasNext()) {
 				SelectionKey key = iterator.next();
 				iterator.remove();
@@ -57,22 +63,28 @@ public class NioServer {
 					ServerSocketChannel serverChannel = (ServerSocketChannel)key.channel();
 					SocketChannel socketChannel = serverChannel.accept();
 					socketChannel.configureBlocking(false);
-					socketChannel.register(selector, SelectionKey.OP_READ);
-				}else if(key.isReadable()) {
+					int inter = SelectionKey.OP_READ | SelectionKey.OP_WRITE;
+					socketChannel.register(selector, inter);
+				}
+				if(key.isReadable()) {
+					logger.debug("服务端接收到客户端信息");
 					SocketChannel socketChannel =(SocketChannel)key.channel();
 					readBuffer.clear();
-					writeBuffer.clear();
 					socketChannel.read(readBuffer);
 					readBuffer.flip();
 					byte[] bytes = new byte[readBuffer.limit()];
 					readBuffer.get(bytes);
 					String msg = new String(bytes);
-					System.out.println("客户端："+msg.trim());
-					System.out.println("请输入回答：");
-					String answer = scanner.next();
-					writeBuffer.put(answer.getBytes());
+					System.out.println("客户端："+msg);
+				}
+				if(key.isWritable())	{
+					SocketChannel socketChannel = (SocketChannel)key.channel();
+					writeBuffer.clear();
+					String result = scanner.nextLine();
+					writeBuffer.put(result.getBytes());
 					writeBuffer.flip();
 					socketChannel.write(writeBuffer);
+					logger.debug("服务端发送完成信息");
 				}
 			}
 		}
