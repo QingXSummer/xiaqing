@@ -19,8 +19,10 @@ public class NioClient {
 	
 	ByteBuffer readBuffer = ByteBuffer.allocate(2048);
 	ByteBuffer writeBuffer = ByteBuffer.allocate(2048);
+
+	static  String msg=null;
 	
-	Scanner scanner = new Scanner(System.in);
+	static Scanner scanner = new Scanner(System.in);
 	
 	public NioClient(String ip, int port) {
 		this.initClient(ip, port);
@@ -36,7 +38,7 @@ public class NioClient {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
+
 	}
 	
 	public void connect() throws IOException {
@@ -71,12 +73,14 @@ public class NioClient {
 				}
 				if(key.isWritable()){
 					SocketChannel socketChannel = (SocketChannel) key.channel();
-					String msg = scanner.nextLine();
-                    writeBuffer.clear();
-                    writeBuffer.put(msg.getBytes());
-                    writeBuffer.flip();
-                    socketChannel.write(writeBuffer);
-                    logger.debug("客户端发送信息");
+//					String msg = scanner.nextLine();
+					if(this.msg != null && this.msg != ""){
+						writeBuffer.clear();
+						writeBuffer.put(msg.getBytes());
+						writeBuffer.flip();
+						socketChannel.write(writeBuffer);
+						logger.debug("客户端发送信息");
+					}
 				}
 			}
 		}
@@ -90,5 +94,4 @@ public class NioClient {
 			e.printStackTrace();
 		}
 	}
-	
 }

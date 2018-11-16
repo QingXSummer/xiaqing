@@ -22,11 +22,13 @@ public class NioServer {
 	private Selector selector;
 	private ByteBuffer readBuffer  = ByteBuffer.allocate(2048);
 	private ByteBuffer writeBuffer  = ByteBuffer.allocate(2048);
-	private Scanner scanner = new Scanner(System.in);
+	static Scanner scanner = new Scanner(System.in);
 	private NioServer(int port) {
 		this.initServer(port);
 	}
-	
+
+	static String msg = null;
+
 	/**
 	 * 初始化服务器端监听
 	 *@author QingX
@@ -77,14 +79,17 @@ public class NioServer {
 					String msg = new String(bytes);
 					System.out.println("客户端："+msg);
 				}
-				if(key.isWritable())	{
+				if(key.isWritable()){
 					SocketChannel socketChannel = (SocketChannel)key.channel();
 					writeBuffer.clear();
 					String result = scanner.nextLine();
-					writeBuffer.put(result.getBytes());
-					writeBuffer.flip();
-					socketChannel.write(writeBuffer);
-					logger.debug("服务端发送完成信息");
+					if(msg!=null && msg!= ""){
+						writeBuffer.put(result.getBytes());
+						writeBuffer.flip();
+						socketChannel.write(writeBuffer);
+						logger.debug("服务端发送完成信息");
+					}
+
 				}
 			}
 		}
@@ -92,6 +97,16 @@ public class NioServer {
 	
 	public static void main(String[] args) {
 		try {
+			Thread thread = new Thread(new Runnable() {
+				@Override
+				public void run() {
+					while (true){
+						String msg = scanner.nextLine();
+						NioClient.msg=msg;
+					}
+				}
+			});
+			thread.start();
 			NioServer server = new NioServer(8888);
 			server.listen();
 		} catch (IOException e) {
