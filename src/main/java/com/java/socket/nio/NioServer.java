@@ -16,6 +16,7 @@ import java.util.Scanner;
 
 /**
  * 这是一个服务类
+ * @author QingX
  */
 public class NioServer {
 
@@ -35,6 +36,8 @@ public class NioServer {
 
 
     private static String msg = null;
+
+    public static final String SERVER = "SERVER";
 
     /**
      * 初始化服务器端监听
@@ -88,7 +91,7 @@ public class NioServer {
                     SocketChannel socketChannel = (SocketChannel) key.channel();
                     writeBuffer.clear();
                     String result = scanner.nextLine();
-                    if (msg != null && msg != "") {
+                    if (msg != null && !"".equals(msg)) {
                         writeBuffer.put(result.getBytes());
                         writeBuffer.flip();
                         socketChannel.write(writeBuffer);
