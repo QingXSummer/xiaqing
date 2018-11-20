@@ -9,7 +9,9 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Scanner;
 
 /**
@@ -26,6 +28,11 @@ public class NioServer {
 	private NioServer(int port) {
 		this.initServer(port);
 	}
+
+
+	Map<String,SelectionKey> keys = new HashMap <>(16);
+
+
 
 	static String msg = null;
 
@@ -93,6 +100,12 @@ public class NioServer {
 				}
 			}
 		}
+	}
+
+
+
+	public void sendMsg(String msg){
+
 	}
 	
 	public static void main(String[] args) {

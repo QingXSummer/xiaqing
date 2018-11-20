@@ -20,7 +20,7 @@ public class NioClient {
 	ByteBuffer readBuffer = ByteBuffer.allocate(2048);
 	ByteBuffer writeBuffer = ByteBuffer.allocate(2048);
 
-	static  String msg=null;
+	static  String msg="";
 	
 	static Scanner scanner = new Scanner(System.in);
 	
