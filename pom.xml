@@ -50,6 +50,21 @@
           <version>1.2.17</version>
       </dependency>
 
+      <dependency>
+          <groupId>bonc</groupId>
+          <artifactId>cmcc</artifactId>
+          <version>0.0.1</version>
+          <scope>system</scope>
+          <systemPath>${project.basedir}/lib/sibship-0.0.1.jar</systemPath>
+      </dependency>
+
+      <!-- https://mvnrepository.com/artifact/dom4j/dom4j -->
+      <dependency>
+          <groupId>dom4j</groupId>
+          <artifactId>dom4j</artifactId>
+          <version>1.6.1</version>
+      </dependency>
+
 
   </dependencies>
   
