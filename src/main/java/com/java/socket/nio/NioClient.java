@@ -14,34 +14,31 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Scanner;
-import java.util.concurrent.locks.LockSupport;
 
 public class NioClient {
 
 
-    static Object lockObj = new Object();
-
     Logger logger = Logger.getLogger(NioClient.class);
 
-    Selector selector ;
-
-    ByteBuffer readBuffer = ByteBuffer.allocate(5);
-    ByteBuffer writeBuffer = ByteBuffer.allocate(5);
+    Selector selector;
 
     /**
      * 是否通过服务端验证
      */
-    volatile boolean pass =false;
+    volatile boolean pass = false;
 
-    static Scanner scanner = new Scanner(System.in);
+    Scanner scanner = new Scanner(System.in);
 
-    private SocketChannel clientKey=null;
+    private SocketChannel clientChanel;
 
     Charset charset = Charset.forName("utf8");
 
-    private static final String passMsg ="name-pass";
+    private static final String OK = "OK";
 
-    private static  final String noPassMsg="name-no-pass";
+    private static final String ERROR = "ERROR";
+
+    private String name = null;
+
 
     public NioClient(String ip, int port) {
         this.initClient(ip, port);
@@ -59,118 +56,104 @@ public class NioClient {
         }
     }
 
-    public void connect() throws IOException {
+    public void connect() {
         while (true) {
-            selector.select();
-            Iterator <SelectionKey> keys = selector.selectedKeys().iterator();
-            logger.debug("keys-size:" + selector.selectedKeys().size());
-            while (keys.hasNext()) {
-                SelectionKey key =  keys.next();
-                keys.remove();
-                if (key.isConnectable()) {
-                    SocketChannel socketChannel = (SocketChannel) key.channel();
-                    // 如果正在连接，则完成连接  
-                    if (socketChannel.isConnectionPending()) {
-                        socketChannel.finishConnect();
+            try {
+                selector.select();
+                Iterator <SelectionKey> keys = selector.selectedKeys().iterator();
+                while (keys.hasNext()) {
+                    SelectionKey key = keys.next();
+                    keys.remove();
+                    if (key.isConnectable()) {
+                        SocketChannel socketChannel = (SocketChannel) key.channel();
+                        // 如果正在连接，则完成连接
+                        if (socketChannel.isConnectionPending()) {
+                            socketChannel.finishConnect();
+                        }
+                        int inter = SelectionKey.OP_READ;
+                        socketChannel.register(selector, inter);
+                        clientChanel = socketChannel;
+                        System.out.println("成功连接服务器");
                     }
-                    int inter = SelectionKey.OP_READ;
-                    socketChannel.register(selector, inter);
-                    clientKey=socketChannel;
-                    System.out.println("成功连接服务器");
+                    if (key.isReadable()) {
+                        handReadKey(key);
+                    }
                 }
-                if (key.isReadable()) {
-                    handReadKey(key);
-                }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
     }
 
     /**
-     *
-     * @param readKey   读的key
+     * @param readKey 读的key
      */
-    void handReadKey(SelectionKey readKey){
+    void handReadKey(SelectionKey readKey) {
+        SocketChannel channel = null;
         try {
-            readBuffer.clear();
-            SocketChannel socketChannel = (SocketChannel) readKey.channel();
-            socketChannel.read(readBuffer);
-            readBuffer.flip();
-            byte[] bytes = new byte[readBuffer.limit()];
-            readBuffer.get(bytes);
-            String msg = new String(bytes);
-            if(passMsg.equals(msg)){
-                pass();
-                System.out.println("昵称验证通过，您可以和其他人聊天了");
-
-            }else if(noPassMsg.equals(msg)){
-                System.out.println("昵称已存在，请重新输入");
-            }else{
+            channel = (SocketChannel) readKey.channel();
+            String msg = readMsg(channel);
+            if (OK.equals(msg)) {
+                System.out.println("您现在可以与其它人聊天了！");
+            } else if (ERROR.equals(msg)) {
+                System.out.println("与服务器连接异常");
+            } else {
                 System.out.println(msg);
             }
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-
-    public void sendMsg(String msg){
-        try {
-            writeBuffer.clear();
-            writeBuffer.put(msg.getBytes());
-            writeBuffer.flip();
-            clientKey.write(writeBuffer);
         } catch (IOException e) {
             e.printStackTrace();
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-
-    private boolean checkName(String name){
-        try {
-            if(name!=null && !"".equals(name)){
-                return  true;
-            }
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-        return  false;
-    }
-
-    private  void pass(){
-        this.pass=true;
-    }
-
-    private boolean isPass(){
-        return  pass;
-    }
-
-    public static void main(String[] args) {
-        try {
-            final NioClient client = new NioClient("127.0.0.1", 8888);
-
-            Thread thread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    while (!client.isPass()){
-                        String name = scanner.nextLine();
-                        boolean hasPass= client.checkName(name);
-                        if(!hasPass){
-                            System.out.println("昵称不符合规则，请重新出入昵称");
-                            continue;
-                        }
-                        client.sendMsg(name);
-                        LockSupport.park(lockObj);
-                    }
-                    while (true) {
-                        String msg = scanner.nextLine();
-                        client.sendMsg(msg);
-                    }
+            if (channel != null) {
+                try {
+                    channel.close();
+                } catch (IOException e1) {
+                    logger.debug("客户端退出");
+                    e1.printStackTrace();
                 }
-            });
-            thread.start();
-            client.connect();
-        } catch (IOException e) {
-            e.printStackTrace();
+            }
         }
+    }
+
+    private String readMsg(SocketChannel socketChannel) throws IOException {
+        ByteBuf byteBuf = new ByteBuf();
+        ByteBuffer buffer = ByteBuffer.allocate(5);
+        while (socketChannel.read(buffer) > 0) {
+            buffer.flip();
+            int len = buffer.remaining();
+            byteBuf.write(buffer.array(), 0, len);
+            buffer.clear();
+        }
+        return byteBuf.toString();
+    }
+
+    public void sendMsg(String msg) {
+        if (clientChanel != null) {
+            try {
+                clientChanel.write(ByteBuffer.wrap(msg.getBytes()));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private boolean checkName(String name) {
+        return false;
+    }
+
+
+    public static void main(String[] args) throws IOException {
+
+        final NioClient client = new NioClient("127.0.0.1", 8888);
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (true) {
+                    Scanner scanner = client.scanner;
+                    String msg = scanner.nextLine();
+                    client.sendMsg(msg);
+                }
+            }
+        });
+        thread.start();
+        client.connect();
     }
 }

@@ -10,6 +10,7 @@ import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * 这是一个服务类
@@ -21,23 +22,24 @@ public class NioServer {
     public static Logger logger = Logger.getLogger(NioServer.class);
 
     private Selector selector;
-    private ByteBuffer readBuffer = ByteBuffer.allocate(5);
-    private ByteBuffer writeBuffer = ByteBuffer.allocate(5);
-//    private static Scanner scanner = new Scanner(System.in);
-    private Charset charset = Charset.forName("UTF8");
 
-    private static final String passMsg = "name-pass";
+    private Charset charset = Charset.forName("UTF8");
 
     private NioServer(int port) {
         this.initServer(port);
     }
+
+    private static final int END_FLAG = -1;
+
+    private static final String OK = "OK";
+
+    private static final String ERROR = "ERROR";
 
 
     /**
      *
      */
     private Map <SocketChannel, String> clientSoc = new HashMap <>(16);
-
 
 
     /**
@@ -95,19 +97,26 @@ public class NioServer {
             if (key.isReadable()) {
                 logger.debug("服务端接收到客户端信息");
                 SocketChannel socketChannel = (SocketChannel) key.channel();
+                if (!clientSoc.containsKey(socketChannel)) {
+                    System.out.println("该客户端不存在");
+                }
                 String name = clientSoc.get(socketChannel);
                 //如果名称为空则说明未取名称
-                if(name  ==null){
-
+                String clientMsg = readMsg(socketChannel);
+                if (name == null) {
+                    clientSoc.put(socketChannel, clientMsg);
+                    socketChannel.write(ByteBuffer.wrap(OK.getBytes()));
+                } else {
+                    sendMsg(clientMsg, socketChannel);
                 }
-                readBuffer.clear();
-                socketChannel.read(readBuffer);
-                readBuffer.flip();
-                byte[] bytes = new byte[readBuffer.limit()];
-                readBuffer.get(bytes);
-                String msg = new String(bytes);
-                System.out.println("客户端：" + msg);
-                socketChannel.register(selector, SelectionKey.OP_READ);
+//                readBuffer.clear();
+//                socketChannel.read(readBuffer);
+//                readBuffer.flip();
+//                byte[] bytes = new byte[readBuffer.limit()];
+//                readBuffer.get(bytes);
+//                String msg = new String(bytes);
+//                System.out.println("客户端：" + msg);
+//                socketChannel.register(selector, SelectionKey.OP_READ);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -118,39 +127,57 @@ public class NioServer {
 
     /**
      * 通过channel获取buffer
+     *
      * @param channel
      * @return
      */
-    private String readMsg(SocketChannel channel){
+    private String readMsg(SocketChannel channel) {
         try {
-            ByteBuffer readBuff = ByteBuffer.allocate(5);
-            channel.read(readBuff);
+            ByteBuffer buffer = ByteBuffer.allocate(5);
+            int count = END_FLAG;
+            ByteBuf buf = new ByteBuf();
+            while ((count = channel.read(buffer)) > 0) {
+                buffer.flip();
+                byte[] write = buffer.array();
+                int length = buffer.remaining();
+                buf.write(write, 0, length);
+                buffer.clear();
+            }
+            return buf.toString();
         } catch (IOException e) {
+            try {
+                System.out.println("通道关闭");
+                 channel.close();
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
             e.printStackTrace();
         }
         return null;
     }
 
 
-    public void sendMsg(SocketChannel socketChannel) {
-//        try {
-//            writeBuffer.clear();
-//            writeBuffer.put(msg.getBytes());
-//            writeBuffer.flip();
-//            SocketChannel socketChannel = clientSoc.get(SERVER);
-//            socketChannel.write(writeBuffer);
-//        } catch (ClosedChannelException e) {
-//            e.printStackTrace();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
+    public void sendMsg(String msg, SocketChannel selfChanel) {
+        Set <SocketChannel> keys = clientSoc.keySet();
+        String name = clientSoc.get(selfChanel);
+        msg = name + " : " + msg;
+        for (SocketChannel socketChannel : keys) {
+            if (socketChannel == selfChanel) {
+                continue;
+            }
+            try {
+                ByteBuffer write = ByteBuffer.wrap(msg.getBytes());
+                socketChannel.write(write);
+            } catch (IOException e) {
+                e.printStackTrace();
+                logger.error("给" + name + "发送消息异常");
+            }
+        }
     }
 
     public static void main(String[] args) {
-            final NioServer server = new NioServer(8888);
-            server.listen();
+        final NioServer server = new NioServer(8888);
+        server.listen();
     }
 
 }
