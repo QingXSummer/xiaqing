@@ -7,18 +7,9 @@ package com.algorithms.tree;
  */
 public class BST<key extends Comparable <key>, value> {
 
-    public static void main(String[] args) {
-        BST <Integer, Integer> bst = new BST <>();
-        bst.put(1, 1);
-        bst.put(2, 2);
-        bst.put(3, 3);
-        bst.put(4, 4);
-        bst.put(5, 5);
-        System.out.println(bst.get(4));
-        System.out.println(bst.size());
-    }
-
     private Node root;
+
+    private Node deleteNode;
 
     /**
      * 描述    :私有内部节点类，用于表示二叉树各个节点
@@ -35,10 +26,51 @@ public class BST<key extends Comparable <key>, value> {
         public Node(key k, value v) {
             this.k = k;
             this.v = v;
-            N=1;
+            N = 1;
         }
     }
 
+    /**
+     * 功能描述: 根据指定的key值删除
+     *
+     * @param key
+     * @return void
+     * @author Qing_X
+     * @date 2019-04-13 22:04:18
+     */
+    public void delete(key key) {
+        root = delete(root, key);
+    }
+
+    private Node delete(Node node, key k) {
+        if (node == null) return null;
+        int cmp = node.k.compareTo(k);
+        if (cmp > 0) {
+            node.left = delete(node.left, k);
+        } else if (cmp < 0) {
+            node.right = delete(node.right, k);
+        } else {
+            Node left = node.left;
+            Node right = deleteMin(node.right);
+            node = deleteNode;
+            if (node == null) {
+                return null;
+            }
+            node.left = left;
+            node.right = right;
+        }
+        node.N = size(node.left) + size(node.right) + 1;
+        return node;
+    }
+
+    /**
+     * 功能描述: 返回当前树的节点值
+     *
+     * @param
+     * @return int
+     * @author Qing_X
+     * @date 2019-04-13 22:04:18
+     */
     public int size() {
         return size(root);
     }
@@ -89,6 +121,39 @@ public class BST<key extends Comparable <key>, value> {
         if (comp > 0) return get(node.left, key);
         if (comp < 0) return get(node.right, key);
         return node.v;
+    }
+
+    public value deleteMin() {
+        root = deleteMin(root);
+        return value(deleteNode);
+    }
+
+    private Node deleteMin(Node node) {
+        if (node == null) return null;
+        if (node.left == null) {
+            deleteNode = node;
+            return node.right;
+        }
+        node.left = deleteMin(node.left);
+        node.N = size(node.left) + size(node.right) + 1;
+        return node;
+    }
+
+    public value value(Node node) {
+        return node == null ? null : node.v;
+    }
+
+
+    public static void main(String[] args) {
+        BST <Integer, Integer> bst = new BST <>();
+        bst.put(1, 1);
+        bst.put(2, 2);
+        bst.put(3, 3);
+//        bst.put(4, 4);
+//        bst.put(5, 5);
+        bst.delete(1);
+//        bst.delete(2);
+        System.out.println(bst.size());
     }
 
 }
