@@ -65,7 +65,25 @@
           <version>1.6.1</version>
       </dependency>
 
+      <dependency>
+          <groupId>org.apache.commons</groupId>
+          <artifactId>commons-lang3</artifactId>
+          <version>3.1</version>
+      </dependency>
 
+
+      <dependency>
+          <groupId>com.noelios.restlet</groupId>
+          <artifactId>com.noelios.restlet.ext.servlet</artifactId>
+          <version>1.1.1</version>
+          <type>jar</type>
+          <scope>runtime</scope>
+      </dependency>
+      <dependency>
+          <groupId>org.aspectj</groupId>
+          <artifactId>aspectjweaver</artifactId>
+          <version>1.8.9</version>
+      </dependency>
   </dependencies>
   
   <build>
@@ -75,8 +93,8 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.6.1</version>
         <configuration> 
-          <source>1.7</source>
-          <target>1.7</target>
+          <source>1.8</source>
+          <target>1.8</target>
         </configuration>
       </plugin>
     </plugins>
