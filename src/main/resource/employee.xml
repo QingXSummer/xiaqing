@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<employee name="xiaqing" age="27">
+    <office>
+        <address name="北京朝阳区乐想汇" num="721"/>
+    </office>
+    <office>
+        <address name="北京朝阳区润泽公馆" num="201"/>
+    </office>
+</employee>
