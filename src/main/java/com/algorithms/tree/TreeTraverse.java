@@ -7,7 +7,7 @@ package com.algorithms.tree;
  */
 public class TreeTraverse {
 
-    public static void firstTraverse(Node node){
+    public static void firstTraverse(){
 
     }
 }

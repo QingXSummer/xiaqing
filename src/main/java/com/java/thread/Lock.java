@@ -1,5 +1,6 @@
 package com.java.thread;
 
+import java.util.HashMap;
 import java.util.concurrent.locks.LockSupport;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -17,8 +18,8 @@ public class Lock  {
 	WriteLock writeLock = readWriteLock.writeLock();
 	
 	public static void main(String[] args) {
-		
-		System.out.println(1 << 16 -1);
+        HashMap hashMap;
+		System.out.println(1 << 30);
 		
 	}
 	
