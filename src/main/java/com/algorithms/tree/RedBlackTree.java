@@ -250,7 +250,13 @@ public class RedBlackTree<Key extends Comparable <Key>, Value> {
         Node p = d.parent;
         //叶子节点
         if (d.left == null && d.right == null) {
-
+            if(isRed(d)){
+                if(isLeft(d))
+                    p.left=null;
+                else
+                    p.right=null;
+            }else
+                de
         } else if (d.left == null) { // 有右节点
             if (isLeft(d)) {
                 if (p != null)
@@ -282,6 +288,11 @@ public class RedBlackTree<Key extends Comparable <Key>, Value> {
             deleteNode(l);
         }
         return null;
+    }
+
+
+    private Node deleteBlackNode(Node node){
+        
     }
 
     private void fixSize(Node node) {

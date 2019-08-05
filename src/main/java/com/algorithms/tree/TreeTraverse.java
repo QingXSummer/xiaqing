@@ -1,5 +1,9 @@
 package com.algorithms.tree;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
+
 /**
  * 描述    :
  * Author :QingX
@@ -8,6 +12,6 @@ package com.algorithms.tree;
 public class TreeTraverse {
 
     public static void firstTraverse(){
-
+        Set list;
     }
 }
