@@ -1,6 +1,10 @@
 package com.algorithms.tree;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * 描述    :
@@ -11,21 +15,22 @@ public class RedBlackTree<Key extends Comparable <Key>, Value> {
 
     public static void main(String[] args) {
         RedBlackTree <String, Object> redBlackTree = new RedBlackTree <>();
-        redBlackTree.put("a", "a");
-        redBlackTree.put("c", "c");
-        redBlackTree.put("e", "e");
-//        redBlackTree.put("c", "c");
-        redBlackTree.put("h", "h");
-        redBlackTree.put("l", "l");
-        redBlackTree.put("m", "m");
-        redBlackTree.put("p", "p");
-        redBlackTree.put("r", "r");
-        redBlackTree.put("s", "s");
-        redBlackTree.put("x", "x");
+        redBlackTree.put("1", "1");
+        redBlackTree.put("2", "2");
+        redBlackTree.put("3", "3");
+        redBlackTree.put("4", "4");
+        redBlackTree.put("5", "5");
+        redBlackTree.put("6", "6");
+        redBlackTree.put("7", "7");
+        redBlackTree.put("8", "8");
+        redBlackTree.delete("3");
+        redBlackTree.delete("4");
+        redBlackTree.delete("5");
+        redBlackTree.delete("6");
+        redBlackTree.delete("7");
+        redBlackTree.delete("8");
+        redBlackTree.delete("2");
         System.out.println(redBlackTree.size());
-        System.out.println(redBlackTree.get("d"));
-        System.out.println(redBlackTree.get("e"));
-        System.out.println(redBlackTree.get("a"));
     }
 
     /**
@@ -245,62 +250,145 @@ public class RedBlackTree<Key extends Comparable <Key>, Value> {
         return deleteNode(d);
     }
 
-    private Node deleteNode(Node d){
-        if (d == null) return null;
+    private Node deleteNode(Node d) {
         Node p = d.parent;
         //叶子节点
         if (d.left == null && d.right == null) {
-            if(isRed(d)){
-                if(isLeft(d))
-                    p.left=null;
-                else
-                    p.right=null;
-            }else
-                de
-        } else if (d.left == null) { // 有右节点
-            if (isLeft(d)) {
-                if (p != null)
-                    p.left = d.right;
-            } else {
-                if (p != null)
-                    p.right = d.right;
+            if (p == null) {
+                this.root = null;
+                return d;
             }
+            if (isRed(d)) {
+                if (isLeft(d))
+                    p.left = null;
+                else
+                    p.right = null;
+            } else
+                deleteBlackNode(d, true);
+            fixSize(p);
+        } else if (d.left == null) { // 有右节点
+            if (p != null) {
+                if (isLeft(d)) {
+                    p.left = d.right;
+                } else {
+                    p.right = d.right;
+                }
+            }
+            d.right.isRed = d.isRed;
             d.right.parent = p;
             fixSize(d.right);
         } else if (d.right == null) { //有左节点
-            if (isLeft(d)) {
-                if (p != null)
+            if (p != null) {
+                if (isLeft(d)) {
                     p.left = d.left;
-            } else {
-                if (p != null)
+                } else {
                     p.right = d.left;
+                }
             }
+            d.left.isRed = d.isRed;
             d.left.parent = p;
             fixSize(d.left);
         } else { //同时拥有两个节点
-            Node t = d;
+            Node t = d.right;
             Node l = t;
             while (t != null) {
                 l = t;
-                t = t.right;
+                t = t.left;
             }
             d.value = l.value;
+            d.key = l.key;
             deleteNode(l);
         }
+
         return null;
     }
 
 
-    private Node deleteBlackNode(Node node){
-        
+    private Node deleteBlackNode(Node node, boolean delete) {
+        Node p = node.parent;
+        Node sib = getSibling(node);
+        if (p != null) {//P为空说明是根节点
+            if (isRed(p)) {
+                if (sib.left == null && sib.right == null) {
+                    p.isRed = false;
+                    sib.isRed = true;
+                } else if (sib.left == null) {
+                    if (isLeft(node)) {
+                        leftRotate(p);
+                        p.parent.right.isRed = false;
+                    } else {
+                        leftRotate(sib);
+                        rightRotate(p);
+                        p.parent.left.isRed = false;
+                    }
+                } else if (sib.right == null) {
+                    if (isLeft(node)) {
+                        rightRotate(sib);
+                        leftRotate(p);
+                        p.parent.right.isRed = false;
+                    } else {
+                        rightRotate(p);
+                        p.parent.left.isRed = false;
+                    }
+                }
+            } else {
+                if (isRed(sib)) {
+                    if (isLeft(node))
+                        leftRotate(p);
+                    else
+                        rightRotate(p);
+                } else {
+                    if (sib.left == null && sib.right == null) {
+                        sib.isRed = true;
+                        deleteBlackNode(p, false);
+                    } else if (sib.right != null) {
+                        if (isLeft(node)) {
+                            leftRotate(p);
+                            sib.right.isRed = false;
+                        } else {
+                            leftRotate(sib);
+                            rightRotate(p);
+                            sib.left.isRed = false;
+                        }
+                    } else if (sib.left != null) {
+                        if (isLeft(node)) {
+                            rightRotate(sib);
+                            leftRotate(p);
+                            sib.isRed = false;
+                        } else {
+                            rightRotate(p);
+                            sib.left.isRed = false;
+                        }
+                    }
+
+                }
+            }
+        }
+        if (delete) {
+            if (p == null)
+                this.root = null;
+            else if (isLeft(node))
+                p.left = null;
+            else
+                p.right = null;
+            node.parent = null;
+        }
+        fixSize(p);
+        return node;
     }
 
     private void fixSize(Node node) {
+        if(node==null)
+            return;
         Node p = node;
+        Node l;
         do {
-            p.N = size(p.left) + size(p.right);
+            l = p;
+            p.N = size(p.left) + size(p.right) + 1;
             p = p.parent;
+
         } while (p != null);
+        this.root = l;
     }
 
     //判断节点是否为空色节点
@@ -364,4 +452,16 @@ public class RedBlackTree<Key extends Comparable <Key>, Value> {
         }
         return null;
     }
+
+    /**
+     * 描述    :获取兄弟节点
+     * Author :QingX
+     * Date   :2019-40-06 09:40:18
+     */
+    private Node getSibling(Node node) {
+        Node pa = node.parent;
+        if (pa == null) return null;
+        return isLeft(node) ? pa.right : pa.left;
+    }
+
 }
