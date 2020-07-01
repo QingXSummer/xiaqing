@@ -9,21 +9,11 @@ public class QueueTest {
 	
 	
 	public static void main(String[] args) {
-		
-		Object object = new Object();
-		
-		List<Object> list = new ArrayList<>();
-		
-		for(int i=0 ;i<5;i++) {
-			object = new Object();
-			System.out.println(object);
-			list.add(object);
-		}
-		
-		for (Object object2 : list) {
-			System.out.println(object2);
-		}
-		
+
+        int numCores = Runtime.getRuntime().availableProcessors();
+        System.out.println(numCores);
+        int slect  = Math.max((int) Math.sqrt((float) numCores/2), 1);
+		System.out.println(slect);
 	}
 	
 	

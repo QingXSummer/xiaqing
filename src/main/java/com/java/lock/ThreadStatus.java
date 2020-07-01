@@ -1,4 +1,4 @@
-package com.java.thread;
+package com.java.lock;
 
 public class ThreadStatus {
 

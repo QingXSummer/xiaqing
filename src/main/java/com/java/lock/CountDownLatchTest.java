@@ -1,4 +1,4 @@
-package com.java.thread;
+package com.java.lock;
 
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CountDownLatch;
@@ -13,9 +13,9 @@ public class CountDownLatchTest {
 	
 	static Semaphore semaphore = new Semaphore(2);
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws InterruptedException {
 		new Task1().start();
-		
+		Thread.sleep(1000*5);
 		new Task2().start();
 		
 		

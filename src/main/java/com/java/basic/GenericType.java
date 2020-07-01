@@ -9,6 +9,8 @@ import java.util.*;
 
 public class GenericType<k extends Comparable <k>> {
     public static void main(String[] args) {
+        Comparable comparable;
+        Comparator comparator;
         File[] files = new File("E:\\资料").listFiles(new FileFilter() {
             @Override
             public boolean accept(File pathname) {

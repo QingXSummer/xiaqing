@@ -1,8 +1,7 @@
 package com.algorithms.tree;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
+
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * 描述    :
@@ -11,7 +10,8 @@ import java.util.Set;
  */
 public class TreeTraverse {
 
-    public static void firstTraverse(){
-        Set list;
+    public static void main(String[] args) {
+        CopyOnWriteArrayList copy;
     }
+
 }

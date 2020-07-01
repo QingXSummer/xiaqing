@@ -13,18 +13,37 @@ import java.util.List;
  */
 
 public class Solution {
+
+    public static void main(String[] args) {
+        Solution solution = new Solution();
+        int[] pre = {1, 2, 4, 7, 3, 5, 6, 8};
+        int[] in = {4, 7, 2, 1, 5, 3, 8, 6};
+        TreeNode node = solution.reConstructBinaryTree(pre, in);
+        System.out.println(node.val);
+    }
+
     public TreeNode reConstructBinaryTree(int[] pre, int[] in) {
-        return getNode(pre,0,pre.length-1,in,0,in.length-1);
+        return getNode(pre, 0, pre.length - 1, in, 0, in.length - 1);
     }
 
     private TreeNode getNode(int[] pre, int startPre, int endPre,
                              int[] in, int startIn, int endIn) {
-        TreeNode treeNode = new TreeNode(pre[startPre]);
-        for (int i=0;i<in.length;i++){
-            if(treeNode.val==in[i]){
-                treeNode.left=getNode(pre,startPre+1,endPre,in,startIn,i);
-                treeNode.right=getNode(pre,startPre+1,endPre,in,i+1,endIn);
+        TreeNode treeNode = null;
+        if (startIn > endIn || startPre>endPre)
+            return null;
+        for (int i = startIn; i <= endIn; i++) {
+            if (pre[startPre] == in[i]) {
+                treeNode = new TreeNode(pre[startPre]);
+                treeNode.left = getNode(pre, startPre +1, endPre, in, startIn, i - 1);
+                treeNode.right = getNode(pre, startPre +1, endPre, in, i + 1, endIn);
                 break;
+            }
+            if (i == endIn) {
+                startPre++;
+                if(startPre>endPre)
+                    return null;
+                i = startIn-1;
+                continue;
             }
         }
         return treeNode;

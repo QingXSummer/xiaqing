@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.function.*;
 import java.util.stream.Collector;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
@@ -23,7 +24,7 @@ public class LambdaEx {
         list.add("126");
         list.sort((String::compareTo));
 
-        List<String> streams = list.stream().map(str -> str.split(""))
+        List <String> streams = list.stream().map(str -> str.split(""))
                 .flatMap(Arrays::stream).distinct()
                 .collect(toList());
         streams.forEach(System.out::println);

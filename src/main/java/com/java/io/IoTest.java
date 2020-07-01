@@ -14,8 +14,7 @@ public class IoTest {
 //        while((count=reader.read(msg))>0){
 //            System.out.println(count);
 //        }
-        System.out.println(new String("你好").getBytes("utf8").length);
-        System.out.println(bytesToHexString(new String("abc").getBytes("UTF16")));
+
     }
 
     public static String bytesToHexString(byte[] src) {

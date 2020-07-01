@@ -1,7 +1,8 @@
-package com.java.thread;
+package com.java.lock;
 
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * 描述    :
@@ -34,7 +35,9 @@ public class QueueTest {
         Collection collection;
         Collections collections;
         CopyOnWriteArrayList copyOnWriteArrayList;
+        ReentrantLock lock;
 
+        LinkedBlockingDeque blockingDeque ;
 
     }
 
